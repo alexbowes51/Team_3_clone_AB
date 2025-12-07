@@ -102,7 +102,7 @@
 			calendarStore.saveEntry(today, $stressStore, true);
 		}
 		
-		goto(`${base}/meditation`);
+		goto(`${base}/Choose_scene`);
 	}
 
 	function goToCalendar() {

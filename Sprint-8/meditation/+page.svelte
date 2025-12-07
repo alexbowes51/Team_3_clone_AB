@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
-    import Meditation from '$lib/MeditationComponent/Meditation.svelte';
+  import Meditation from '$lib/MeditationComponent/Meditation.svelte';
   import { sceneStore } from '$lib/stores/sceneStore';
   import { onMount, onDestroy } from 'svelte';
 
@@ -11,7 +11,7 @@
   let backgroundImage = '';
   let fadeTransition = false;
   let audioElement: HTMLAudioElement | null = null;
-  let audioSource = '';
+  let audioSource = '';;
 
   onMount(() => {
     sceneStore.subscribe(value => {
@@ -35,6 +35,7 @@
 
   function startMeditation() {
     started = true;
+    // Start playing audio
     if (audioElement) {
       audioElement.play();
     }
@@ -42,24 +43,29 @@
 
   function handleComplete() {
     completed = true;
+    // Stop audio when meditation completes
     if (audioElement) {
       audioElement.pause();
       audioElement.currentTime = 0;
     }
+    // Navigate to ending page
     goto(`${base}/Ending_of_Meditation`);
   }
 
   function skipMeditation() {
     completed = true;
+    // Stop audio when skipping
     if (audioElement) {
       audioElement.pause();
       audioElement.currentTime = 0;
     }
-    goto(`${base}/Conclusion`);
+    // Navigate to ending page
+    goto(`${base}/Ending_of_Meditation`);
   }
 
   function handleFadeTransition() {
     fadeTransition = true;
+    // Change to version without sun
     if (selectedScene === 'beach') {
       backgroundImage = `${base}/ASSETS/Beach-Scence-Sun-Set.png`;
     } else if (selectedScene === 'forest') {
@@ -71,27 +77,13 @@
 <audio bind:this={audioElement} src={audioSource} loop preload="auto"></audio>
 
 <div class="container" style="background-image: url('{backgroundImage}');" class:fade={fadeTransition}>
-  <div class="help-popup">
-		<div class="help-content">
-      <h3>Steps:</h3>
-        <ol>
-          <li>Click Start to Begin the Meditation</li>
-          <li>Click Skip To Proceed to Feedback</li>
-        </ol>
-    </div>
-  </div>
+  {#if !started}
+    <h1>Ready to Begin Meditation</h1>
+  {/if}
 
-  <div class="content-wrapper">
-    {#if !started}
-      <div class="intro">
-        <h2>Ready to Begin Meditation</h2>
-      </div>
-    {/if}
-
-    {#if started}
-      <Meditation on:complete={handleComplete} on:fadeTransition={handleFadeTransition} />
-    {/if}
-  </div>
+  {#if started}
+    <Meditation on:complete={handleComplete} on:fadeTransition={handleFadeTransition} />
+  {/if}
 
   <div class="button-container">
     {#if !started}
@@ -103,7 +95,7 @@
     {/if}
 
     {#if completed}
-      <a href=" " class="action-button continue">Continue</a>
+      <a href= " " class="action-button continue">Continue</a>
     {/if}
   </div>
 </div>
@@ -140,77 +132,10 @@
     }
   }
 
-  .content-wrapper {
-    z-index: 2;
-    width: 100%;
-    max-width: 800px;
-  }
-
-  .intro {
-    margin-top: 10rem;
-    text-align: center;
-		background: rgba(255, 255, 255, 0.2);
-		backdrop-filter: blur(10px);
-		border-radius: 20px;
-		padding-bottom: 1rem;
-		margin-bottom: 2rem;
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-	}
-	
-	.intro p {
-		font-style: BlinkMacSystemFont, -apple-system, sans-serif;
-		font-size: 1.2rem;
-		line-height: 1.6;
-		margin: 0;
-		color: #000;
-	}
-
   h1 {
-    font-size: 3rem;
-    color: #000;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-
-  p {
-    font-size: 1.1rem;
+    font-size: 2.5rem;
     color: #333;
-    margin-bottom: 3rem;
-    line-height: 1.6;
-  }
-
-  .meditation-card {
-    background: linear-gradient(135deg, #d4723c 0%, #c8632e 100%);
-    border-radius: 50%;
-    width: 300px;
-    height: 300px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    position: relative;
-  }
-
-  .meditation-card::before {
-    content: '';
-    position: absolute;
-    bottom: -150px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120%;
-    height: 80px;
-    background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.6) 0%, transparent 70%);
-    filter: blur(20px);
-  }
-
-  .meditation-card h2 {
-    color: white;
-    font-size: 2rem;
-    font-weight: 600;
     text-align: center;
-    line-height: 1.3;
   }
 
   .button-container {
@@ -259,45 +184,4 @@
     bottom: 2rem;
     right: 2rem;
   }
-
-  .help-popup {
-  position: fixed;
-  left: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-  max-width: 250px;
-}
-
-.help-content h3 {
-  margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 1.25rem;
-  font-family: BlinkMacSystemFont, -apple-system, sans-serif;
-}
-
-.help-content ol {
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #666;
-}
-
-.help-content li {
-  margin-bottom: 0.75rem;
-  line-height: 1.5;
-}
-
-.help-content li:last-child {
-  margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-  .help-popup {
-    display: none;
-  }
-}
 </style>
